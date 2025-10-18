@@ -1,165 +1,148 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 
-import styles from "./page.module.css";
-
-import { TogglePillGroup, type ToggleOption } from "../components/TogglePillGroup";
-import { SectionCard } from "../components/SectionCard";
-import { HeroStepBadge } from "../components/HeroStepBadge";
 import { ContactIcon, PropertyIcon, RentIcon, MediaIcon } from "../components/Icons";
 
 type PropertyIntent = "rent" | "sale";
 
 type FormState = {
-  name: string;
-  phone: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  propertyName: string;
-  propertyType: string;
+  phone: string;
+  propertyAddress: string;
   locationPin: string;
+  propertyType: string;
   bedrooms: string;
   bathrooms: string;
-  landSize: string;
   buildingSize: string;
+  landSize: string;
   propertyDescription: string;
   rentDuration: string;
-  managementPackage: string;
+  tenure: string;
+  leaseYears: string;
+  buildingPermits: string;
   price: string;
-  crossListing: boolean;
 };
 
 const initialFormState: FormState = {
-  name: "",
-  phone: "",
+  firstName: "",
+  lastName: "",
   email: "",
-  propertyName: "",
-  propertyType: "villa",
+  phone: "",
+  propertyAddress: "",
   locationPin: "",
+  propertyType: "villa",
   bedrooms: "1",
   bathrooms: "1",
-  landSize: "",
   buildingSize: "",
+  landSize: "",
   propertyDescription: "",
-  rentDuration: "daily",
-  managementPackage: "online",
+  rentDuration: "monthly",
+  tenure: "",
+  leaseYears: "",
+  buildingPermits: "",
   price: "",
-  crossListing: false,
 };
 
-const propertyIntentOptions: ToggleOption[] = [
-  { label: "For rent", value: "rent" },
-  { label: "For sale", value: "sale" },
-];
-
-const allPropertyTypeOptions: ToggleOption[] = [
+const allPropertyTypeOptions = [
   { label: "Villa", value: "villa" },
   { label: "Apartment", value: "apartment" },
   { label: "House", value: "house" },
 ];
 
-const bedroomBathroomOptions: ToggleOption[] = Array.from(
-  { length: 9 },
-  (_, index) => {
-    const value = String(index + 1);
-    return { label: value, value };
-  }
-);
-
-const rentalDurationOptions: ToggleOption[] = [
+const rentalDurationOptions = [
   { label: "Daily", value: "daily" },
   { label: "Monthly", value: "monthly" },
   { label: "Yearly", value: "yearly" },
 ];
 
-const managementOptions: ToggleOption[] = [
-  { label: "Online marketing", value: "online" },
-  { label: "Full management", value: "full" },
+const saleTenureOptions = [
+  { label: "Freehold", value: "freehold" },
+  { label: "Leasehold", value: "leasehold" },
 ];
 
-const heroSteps = [
-  { label: "Contact Information" },
-  { label: "Property Details" },
-  { label: "Additional Information" },
-  { label: "Photos and Media" },
+const buildingPermitOptions = [
+  { label: "IMB", value: "imb" },
+  { label: "PBG", value: "pbg" },
+  { label: "SLF", value: "slf" },
+  { label: "Others", value: "others" },
+];
+
+const footerSections = [
+  {
+    title: "Offers",
+    items: ["Property Sales", "Land Sales", "Off-Plan", "Villa Rentals"],
+  },
+  {
+    title: "Company",
+    items: ["About NF Group", "Partnership Programs", "Client Reviews"],
+  },
+  {
+    title: "Services",
+    items: ["Villa & Resort Management", "Project Marketing", "Exclusive Listings", "Consultancy"],
+  },
+  {
+    title: "Resources",
+    items: ["Quarterly Market Wide", "Quarterly Market Sector", "News", "Privacy Policy"],
+  },
+  {
+    title: "Socials",
+    items: ["Instagram", "Facebook", "LinkedIn", "Youtube"],
+  },
+  {
+    title: "Certified By",
+    items: ["LSP", "AREBI"],
+  },
 ];
 
 const backgroundImageUrl =
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=80";
+  "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1800&q=80";
 
 export default function Home() {
-  const router = useRouter();
-  const [intent, setIntent] = useState<PropertyIntent>("rent");
+  const [intent, setIntent] = useState<PropertyIntent>("sale");
   const [formData, setFormData] = useState<FormState>(initialFormState);
-  const [touched, setTouched] =
-    useState<Partial<Record<keyof FormState, boolean>>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [selectedMediaCount, setSelectedMediaCount] = useState(0);
 
   const requiredFields: (keyof FormState)[] = useMemo(
-    () => ["name", "phone", "email", "locationPin"],
+    () => ["firstName", "lastName", "email", "phone", "propertyAddress"],
     []
   );
 
-  const propertyTypeOptions: ToggleOption[] = useMemo(() => {
+  const propertyTypeOptions = useMemo(() => {
     if (intent === "rent") {
-      return allPropertyTypeOptions.filter(option =>
-        option.value === "villa" || option.value === "apartment"
+      return allPropertyTypeOptions.filter(
+        (option) => option.value === "villa" || option.value === "apartment"
       );
     }
     return allPropertyTypeOptions;
   }, [intent]);
 
-  const priceSuffix =
-    intent === "rent"
-      ? formData.rentDuration === "monthly"
-        ? "month"
-        : formData.rentDuration === "yearly"
-        ? "year"
-        : "day"
-      : undefined;
+  const tenureOptions = intent === "rent" ? rentalDurationOptions : saleTenureOptions;
+  const priceLabel = intent === "rent" ? "Rental Price (IDR)" : "Listing Price (IDR)";
+  const tenureLabel = intent === "rent" ? "Rental Tenure" : "Tenure";
 
-  const priceLabel =
-    intent === "rent"
-      ? `What's the rental price per ${priceSuffix}?`
-      : "What's the listing price?";
+  const inputClass =
+    "w-full rounded-lg border border-[#d9d1c8] bg-white px-4 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#7a1c1c] focus:outline-none focus:ring-2 focus:ring-[#7a1c1c]/20";
 
-  const crossListingLabel =
-    intent === "rent"
-      ? "Also interested in listing this property for sale"
-      : "Also interested in listing this property for rent";
-
-  const markTouched = (field: keyof FormState) => {
-    setTouched((prev) => ({
+  const handleIntentChange = (value: PropertyIntent) => {
+    setIntent(value);
+    setFormData((prev) => ({
       ...prev,
-      [field]: true,
+      rentDuration: value === "rent" ? "monthly" : prev.rentDuration,
+      tenure: "",
+      leaseYears: "",
+      buildingPermits: "",
+      price: "",
     }));
   };
 
-  const updateField = <K extends keyof FormState>(
-    field: K,
-    value: FormState[K]
-  ) => {
+  const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-  };
-
-  const handleIntentChange = (value: string) => {
-    const nextIntent = value as PropertyIntent;
-    setIntent(nextIntent);
-
-    if (nextIntent === "rent") {
-      updateField("rentDuration", "daily");
-    } else {
-      updateField("rentDuration", "monthly");
-    }
-
-    updateField("managementPackage", "online");
-    updateField("crossListing", false);
   };
 
   const isSubmitDisabled = requiredFields.some((field) => {
@@ -169,19 +152,13 @@ export default function Home() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     const missing = requiredFields.filter((field) => {
       const value = formData[field];
       return typeof value === "string" ? value.trim().length === 0 : !value;
     });
 
     if (missing.length > 0) {
-      setTouched((prev) => {
-        const next = { ...prev };
-        missing.forEach((field) => {
-          next[field] = true;
-        });
-        return next;
-      });
       return;
     }
 
@@ -190,605 +167,415 @@ export default function Home() {
 
   const handleReset = () => {
     setFormData(initialFormState);
-    setTouched({});
-    setIntent("rent");
+    setIntent("sale");
     setIsSubmitted(false);
-    setSelectedMediaCount(0);
   };
 
   return (
-    <div className="h-screen bg-white text-neutral-900">
-      <div className="flex h-screen w-full flex-col lg:flex-row lg:gap-0 lg:p-0">
-        <div className="relative overflow-hidden bg-neutral-900 text-white lg:fixed lg:top-0 lg:left-0 lg:h-screen lg:w-1/2 lg:overflow-hidden">
+    <div className="flex h-screen flex-col bg-white text-neutral-900 relative overflow-y-scroll">
+      <main className="flex flex-1 lg:flex-row">
+        <section id="hero-section" className="relative h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
           <img
             src={backgroundImageUrl}
             alt="Coastal view"
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30" />
-          <div className="relative flex h-full flex-col justify-between">
-            <header className="flex items-center gap-2 px-6 pt-6">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/90 text-xl font-bold text-[#1d4d4f] shadow-[0_14px_30px_-18px_rgba(255,255,255,0.6)]">
-                N
-              </span>
-              <span className="text-lg font-semibold tracking-tight">
-                NF Group
-              </span>
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/20 to-black/70" />
+          <div className="relative flex h-full flex-col justify-between px-8 py-12 sm:px-12 lg:px-16 lg:py-[96px]">
+            <header className="flex items-center gap-3">
+              <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
             </header>
-
-            <nav aria-label="Breadcrumb" className="px-8 text-sm text-white/75">
-              <ol className="flex items-center gap-2">
-                <li>
-                  <Link className="transition hover:text-white" href="/">
-                    Home
-                  </Link>
-                </li>
-                <li aria-hidden="true">•</li>
-                <li aria-current="page" className="font-medium text-white">
-                  List Your Property
-                </li>
-              </ol>
-            </nav>
-
-            <div className="mt-8 flex flex-col gap-8 px-6 pb-8">
-              <h2 className="text-2xl font-semibold tracking-tight">
-                Follow the steps to submit your listing
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {heroSteps.map((step) => (
-                  <HeroStepBadge key={step.label} label={step.label} />
-                ))}
-              </div>
+            <div className="max-w-md space-y-5">
+              <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">List with Us</h1>
+              <p className="text-base text-white/85">
+                Looking to sell or rent out your property?{" "}
+                <span className="font-semibold text-white">List your property with us</span> — we help
+                owners reach verified buyers and reliable renters through our proven marketing and sales
+                network.
+              </p>
             </div>
+            <div className="mt-10 h-px w-16 bg-white/50" />
           </div>
-        </div>
+        </section>
 
-        <div className="lg:w-1/2 lg:ml-[50%] lg:h-screen lg:overflow-y-auto space-y-4 p-6 lg:p-8">
-          <header className="space-y-3 rounded-lg border border-[#e2e4ea] bg-white px-5 py-4 shadow-[0_10px_28px_-20px_rgba(15,23,42,0.3)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#3d6dd8]">
-              NF Group
-            </p>
-            <h1 className="text-4xl font-semibold leading-tight text-neutral-900 sm:text-[2.75rem] sm:leading-[1.1]">
-              <span className="text-[#1f4ed8]">List Your Property</span> for Rent
-              or Sale
-            </h1>
-            <p className="max-w-2xl text-sm text-neutral-600 sm:text-base">
-              Share your property details and we'll help you reach the right guests
-              or buyers. Complete the steps below and our team will get in touch
-              shortly.
-            </p>
-          </header>
+        <section
+          id="form-section"
+          className="h-full max-h-screen overflow-y-auto bg-white px-6 py-10 sm:px-10 lg:px-16"
+        >
+          <div className="mx-auto w-full max-w-2xl space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold text-neutral-900">
+                Submit your property for rent or sale.
+              </h2>
+            </div>
 
-          {isSubmitted ? (
-            <div className="rounded-lg border border-[#e2e4ea] bg-white px-8 py-16 text-center shadow-[0_22px_60px_-38px_rgba(15,23,42,0.4)]">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[#1f4ed8] text-white shadow-[0_20px_50px_-28px_rgba(31,78,216,0.65)]">
-                <svg
-                  aria-hidden="true"
-                  className="h-8 w-8"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M5 12.5 9.5 17 19 7.5"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="mt-6 space-y-2">
-                <p className="text-2xl font-semibold text-neutral-900">
-                  Thank you!
-                </p>
-                <p className="text-sm text-neutral-600">
-                  Our team will review your submission and get back to you shortly.
-                </p>
-              </div>
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={handleReset}
-                className="mt-8 inline-flex items-center justify-center rounded-lg border border-neutral-900 bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+                onClick={() => handleIntentChange("rent")}
+                className={`rounded-lg px-5 py-3 text-sm font-semibold transition ${
+                  intent === "rent"
+                    ? "bg-[#7a1c1c] text-white shadow-lg shadow-[#7a1c1c]/25"
+                    : "bg-[#f2ebe4] text-neutral-700 hover:bg-[#e7dfd7]"
+                }`}
               >
-                Done
+                For Rent
+              </button>
+              <button
+                type="button"
+                onClick={() => handleIntentChange("sale")}
+                className={`rounded-lg px-5 py-3 text-sm font-semibold transition ${
+                  intent === "sale"
+                    ? "bg-[#7a1c1c] text-white shadow-lg shadow-[#7a1c1c]/25"
+                    : "bg-[#f2ebe4] text-neutral-700 hover:bg-[#e7dfd7]"
+                }`}
+              >
+                For Sale
               </button>
             </div>
-          ) : (
-            <form
-              className="space-y-5 sm:space-y-6"
-              onSubmit={handleSubmit}
-              noValidate
-            >
-              <section className={styles.formSection}>
-                <h2 className="text-base font-semibold text-neutral-900">
-                  Choose to Rent or Sell Your Property
-                </h2>
-                <div className="rounded-lg bg-[#eceef2] p-1">
-                  <TogglePillGroup
-                    label="Listing intent"
-                    legendClassName="sr-only"
-                    name="listing-intent"
-                    options={propertyIntentOptions}
-                    value={intent}
-                    onChange={handleIntentChange}
-                    layoutClassName="grid grid-cols-2 gap-1"
-                    appearance="segmented"
-                  />
-                </div>
-              </section>
 
-              <SectionCard
-                icon={<ContactIcon />}
-                title="Contact Information"
-                description="Tell us how we can reach you about this listing."
-              >
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className={styles.label}
-                    >
-                      What's your name?
-                      <span className="text-[#d12a2a]">*</span>
-                    </label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="John Doe"
-                      className={`mt-2 w-full rounded-lg border border-[#dcdfe6] bg-white px-4 py-3 text-[15px] text-neutral-900 shadow-[0_10px_24px_-28px_rgba(15,23,42,0.45)] transition focus:border-[#1f4ed8] focus:outline-none focus:ring-2 focus:ring-[#1f4ed8]/30 ${
-                        touched.name && formData.name.trim().length === 0
-                          ? "border-[#e15b5b] focus:border-[#e15b5b] focus:ring-[#e15b5b]/30"
-                          : ""
-                      }`}
-                      value={formData.name}
-                      onChange={(event) => updateField("name", event.target.value)}
-                      onBlur={() => markTouched("name")}
-                      required
-                      aria-invalid={Boolean(
-                        touched.name && formData.name.trim().length === 0
-                      )}
-                      aria-describedby="name-error"
-                    />
-                    {touched.name && formData.name.trim().length === 0 ? (
-                      <p
-                        id="name-error"
-                        className={styles.error}
-                      >
-                        Name is a required field.
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className={styles.label}
-                    >
-                      What's your phone number?
-                      <span className="text-[#d12a2a]">*</span>
-                    </label>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      inputMode="tel"
-                      placeholder="+62 812 345 678"
-                      className={`mt-2 w-full rounded-lg border border-[#dcdfe6] bg-white px-4 py-3 text-[15px] text-neutral-900 shadow-[0_10px_24px_-28px_rgba(15,23,42,0.45)] transition focus:border-[#1f4ed8] focus:outline-none focus:ring-2 focus:ring-[#1f4ed8]/30 ${
-                        touched.phone && formData.phone.trim().length === 0
-                          ? "border-[#e15b5b] focus:border-[#e15b5b] focus:ring-[#e15b5b]/30"
-                          : ""
-                      }`}
-                      value={formData.phone}
-                      onChange={(event) => updateField("phone", event.target.value)}
-                      onBlur={() => markTouched("phone")}
-                      required
-                      aria-invalid={Boolean(
-                        touched.phone && formData.phone.trim().length === 0
-                      )}
-                      aria-describedby="phone-error"
-                    />
-                    {touched.phone && formData.phone.trim().length === 0 ? (
-                      <p
-                        id="phone-error"
-                        className={styles.error}
-                      >
-                        Phone number is a required field.
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label
-                      htmlFor="email"
-                      className={styles.label}
-                    >
-                      What's your email address?
-                      <span className="text-[#d12a2a]">*</span>
-                    </label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="johndoe@example.com"
-                      className={`mt-2 w-full rounded-lg border border-[#dcdfe6] bg-white px-4 py-3 text-[15px] text-neutral-900 shadow-[0_10px_24px_-28px_rgba(15,23,42,0.45)] transition focus:border-[#1f4ed8] focus:outline-none focus:ring-2 focus:ring-[#1f4ed8]/30 ${
-                        touched.email && formData.email.trim().length === 0
-                          ? "border-[#e15b5b] focus:border-[#e15b5b] focus:ring-[#e15b5b]/30"
-                          : ""
-                      }`}
-                      value={formData.email}
-                      onChange={(event) => updateField("email", event.target.value)}
-                      onBlur={() => markTouched("email")}
-                      required
-                      aria-invalid={Boolean(
-                        touched.email && formData.email.trim().length === 0
-                      )}
-                      aria-describedby="email-error"
-                    />
-                    {touched.email && formData.email.trim().length === 0 ? (
-                      <p
-                        id="email-error"
-                        className={styles.error}
-                      >
-                        Email is a required field.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon={<PropertyIcon />}
-                title="Property Details"
-                description="Provide the basics so we can understand your property better."
-              >
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label
-                      htmlFor="propertyName"
-                      className="text-sm font-medium text-neutral-700"
-                    >
-                      Property name
-                    </label>
-                    <input
-                      id="propertyName"
-                      name="propertyName"
-                      type="text"
-                      placeholder="Cozy Downtown Apartment."
-                      className={styles.input}
-                      value={formData.propertyName}
-                      onChange={(event) =>
-                        updateField("propertyName", event.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="locationPin"
-                      className={styles.label}
-                    >
-                      Location pin
-                      <span className="text-[#d12a2a]">*</span>
-                    </label>
-                    <input
-                      id="locationPin"
-                      name="locationPin"
-                      type="url"
-                      placeholder="Enter the URL"
-                      className={`mt-2 w-full rounded-lg border border-[#dcdfe6] bg-white px-4 py-3 text-[15px] text-neutral-900 shadow-[0_10px_24px_-28px_rgba(15,23,42,0.45)] transition focus:border-[#1f4ed8] focus:outline-none focus:ring-2 focus:ring-[#1f4ed8]/30 ${
-                        touched.locationPin && formData.locationPin.trim().length === 0
-                          ? "border-[#e15b5b] focus:border-[#e15b5b] focus:ring-[#e15b5b]/30"
-                          : ""
-                      }`}
-                      value={formData.locationPin}
-                      onChange={(event) =>
-                        updateField("locationPin", event.target.value)
-                      }
-                      onBlur={() => markTouched("locationPin")}
-                      required
-                      aria-invalid={Boolean(
-                        touched.locationPin &&
-                          formData.locationPin.trim().length === 0
-                      )}
-                      aria-describedby="locationPin-error"
-                    />
-                    {touched.locationPin && formData.locationPin.trim().length === 0 ? (
-                      <p
-                        id="locationPin-error"
-                        className={styles.error}
-                      >
-                        Location pin is a required field.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-
-                <TogglePillGroup
-                  label="What type of property is it?"
-                  name="property-type"
-                  options={propertyTypeOptions}
-                  value={formData.propertyType}
-                  onChange={(value) => updateField("propertyType", value)}
-                  layoutClassName="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-2"
-                />
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <TogglePillGroup
-                    label="How many bedrooms?"
-                    name="bedrooms"
-                    options={bedroomBathroomOptions}
-                    value={formData.bedrooms}
-                    onChange={(value) => updateField("bedrooms", value)}
-                    layoutClassName="bg-gray-100 rounded-xl p-1.5 grid grid-cols-9 gap-1"
-                    appearance="segmented"
-                  />
-                  <TogglePillGroup
-                    label="How many bathrooms?"
-                    name="bathrooms"
-                    options={bedroomBathroomOptions}
-                    value={formData.bathrooms}
-                    onChange={(value) => updateField("bathrooms", value)}
-                    layoutClassName="bg-gray-100 rounded-xl p-1.5 grid grid-cols-9 gap-1"
-                    appearance="segmented"
-                  />
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label
-                      htmlFor="landSize"
-                      className="text-sm font-medium text-neutral-700"
-                    >
-                      Land size <span className="text-neutral-400">(in sqm)</span>
-                    </label>
-                    <input
-                      id="landSize"
-                      name="landSize"
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="500"
-                      min={0}
-                      className={styles.input}
-                      value={formData.landSize}
-                      onChange={(event) => updateField("landSize", event.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="buildingSize"
-                      className="text-sm font-medium text-neutral-700"
-                    >
-                      Building size <span className="text-neutral-400">(in sqm)</span>
-                    </label>
-                    <input
-                      id="buildingSize"
-                      name="buildingSize"
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="250"
-                      min={0}
-                      className={styles.input}
-                      value={formData.buildingSize}
-                      onChange={(event) =>
-                        updateField("buildingSize", event.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="propertyDescription"
-                    className="text-sm font-medium text-neutral-700"
-                  >
-                    Property description
-                  </label>
-                  <textarea
-                    id="propertyDescription"
-                    name="propertyDescription"
-                    rows={4}
-                    placeholder="A spacious 3-bedroom villa with a beautiful garden and pool."
-                    className={styles.input}
-                    value={formData.propertyDescription}
-                    onChange={(event) =>
-                      updateField("propertyDescription", event.target.value)
-                    }
-                  />
-                </div>
-              </SectionCard>
-
-              {intent === "rent" ? (
-                <SectionCard
-                  icon={<RentIcon />}
-                  title="Rental Details"
-                  description="Help us understand your rental preferences and expectations."
-                >
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <TogglePillGroup
-                      label="How long do you want to rent it out?"
-                      name="rent-duration"
-                      options={rentalDurationOptions}
-                      value={formData.rentDuration}
-                      onChange={(value) => updateField("rentDuration", value)}
-                      layoutClassName="grid grid-cols-3 gap-2"
-                    />
-                    <TogglePillGroup
-                      label="What management package do you prefer?"
-                      name="management-package"
-                      options={managementOptions}
-                      value={formData.managementPackage}
-                      onChange={(value) =>
-                        updateField("managementPackage", value)
-                      }
-                      layoutClassName="grid grid-cols-2 gap-2"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="price"
-                      className="text-sm font-medium text-neutral-700"
-                    >
-                      {priceLabel} <span className="text-neutral-400">(in $)</span>
-                    </label>
-                    <input
-                      id="price"
-                      name="price"
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="$"
-                      min={0}
-                      className={styles.input}
-                      value={formData.price}
-                      onChange={(event) => updateField("price", event.target.value)}
-                    />
-                  </div>
-                </SectionCard>
-              ) : (
-                <SectionCard
-                  icon={<RentIcon />}
-                  title="Sale Details"
-                  description="Provide key information for potential buyers."
-                >
-                  <div className="rounded-lg border border-[#d7dcf0] bg-[#edf1ff] px-5 py-4 text-sm text-[#2f4075]">
-                    <p className="font-semibold text-[#293a75]">Online marketing</p>
-                    <p className="mt-1">
-                      We'll handle lead generation, buyer communication, and listing
-                      exposure while you stay in control of negotiations and on-site
-                      viewings.
-                    </p>
-                    <p className="mt-3 font-semibold text-[#293a75]">
-                      Full management
-                    </p>
-                    <p className="mt-1">
-                      Prefer a hands-off approach? Choose full management and we'll
-                      coordinate everything from viewings to documentation on your behalf.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="price"
-                      className="text-sm font-medium text-neutral-700"
-                    >
-                      {priceLabel} <span className="text-neutral-400">(in $)</span>
-                    </label>
-                    <input
-                      id="price"
-                      name="price"
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="$"
-                      min={0}
-                      className={styles.input}
-                      value={formData.price}
-                      onChange={(event) => updateField("price", event.target.value)}
-                    />
-                  </div>
-
-                  <TogglePillGroup
-                    label="Which package fits you best?"
-                    name="management-package-sale"
-                    options={managementOptions}
-                    value={formData.managementPackage}
-                    onChange={(value) => updateField("managementPackage", value)}
-                    layoutClassName="grid grid-cols-2 gap-2"
-                  />
-                </SectionCard>
-              )}
-
-              <SectionCard
-                icon={<MediaIcon />}
-                title="Photos and Media"
-                description="Upload images and videos of your property."
-              >
-                <label
-                  htmlFor="propertyMedia"
-                  className="group flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-[#cfd5de] bg-white px-8 py-12 text-center transition hover:border-[#1f4ed8] hover:bg-[#f2f5ff]"
-                >
-                  <input
-                    id="propertyMedia"
-                    name="propertyMedia"
-                    type="file"
-                    accept="image/*,video/*,application/pdf"
-                    multiple
-                    className="sr-only"
-                    onChange={(event) =>
-                      setSelectedMediaCount(event.target.files?.length ?? 0)
-                    }
-                  />
-                  <svg
-                    aria-hidden="true"
-                    className="h-[46px] w-[46px] text-[#1f4ed8] transition group-hover:scale-105"
-                    viewBox="0 0 48 48"
-                    fill="none"
-                  >
-                    <rect
-                      x="8"
-                      y="8"
-                      width="32"
-                      height="32"
-                      rx="12"
-                      className="fill-[#e8edff]"
-                    />
+            {isSubmitted ? (
+              <div className="rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-10 py-16 text-center shadow-lg shadow-[#7a1c1c]/10">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#7a1c1c] text-white shadow-lg shadow-[#7a1c1c]/35">
+                  <svg aria-hidden="true" className="h-10 w-10" fill="none" viewBox="0 0 24 24">
                     <path
-                      d="M24 16v16M16 24h16"
+                      d="M5 12.5 9.5 17 19 7.5"
                       stroke="currentColor"
-                      strokeWidth={3}
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      strokeWidth={2.5}
                     />
                   </svg>
-                  <div className="space-y-1 text-sm">
-                    <p className="font-semibold text-neutral-800">
-                      Drop files to upload <span className="text-neutral-500">or</span>{" "}
-                      <span className="text-[#1f4ed8]">browse</span>
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      JPG, PNG, HEIC, MP4, MOV, or PDF up to 50 MB each.
-                    </p>
-                    {selectedMediaCount > 0 ? (
-                      <p className="text-xs font-medium text-neutral-600">
-                        {selectedMediaCount} file
-                        {selectedMediaCount > 1 ? "s" : ""} selected
-                      </p>
-                    ) : null}
-                  </div>
-                </label>
-
-                <div className="space-y-4 rounded-lg border border-[#e2e4ea] bg-white px-6 py-5 text-sm text-neutral-600">
-                  <p className="font-semibold text-neutral-900">
-                    Make sure everything looks correct before submitting.
+                </div>
+                <div className="mt-6 space-y-2">
+                  <p className="text-2xl font-semibold text-neutral-900">Thank you!</p>
+                  <p className="text-sm text-neutral-600">
+                    Our team will review your submission and contact you soon.
                   </p>
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <label className="flex items-center gap-3 text-sm font-medium text-neutral-700">
+                </div>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="mt-8 inline-flex items-center justify-center rounded-lg border border-[#7a1c1c] bg-[#7a1c1c] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#651515]"
+                >
+                  Back to form
+                </button>
+              </div>
+            ) : (
+              <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+                <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <ContactIcon />
+                    <h3 className="text-lg font-semibold text-neutral-900">Contact Information</h3>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">First Name</label>
                       <input
-                        id="crossListing"
-                        name="crossListing"
-                        type="checkbox"
-                        className="h-5 w-5 rounded border border-[#cbd0d8] text-[#1f4ed8] focus:ring-[#1f4ed8]"
-                        checked={formData.crossListing}
-                        onChange={(event) =>
-                          updateField("crossListing", event.target.checked)
-                        }
+                        type="text"
+                        placeholder="First Name"
+                        className={`${inputClass} mt-2`}
+                        value={formData.firstName}
+                        onChange={(event) => updateField("firstName", event.target.value)}
                       />
-                      {crossListingLabel}
-                    </label>
-                    <button
-                      type="submit"
-                      disabled={isSubmitDisabled}
-                      className="inline-flex items-center justify-center rounded-lg border border-transparent bg-[#dce2f1] px-10 py-3 text-sm font-semibold text-neutral-500 transition hover:bg-[#cfd8ed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4ed8] disabled:cursor-not-allowed disabled:border-transparent disabled:bg-[#e5e7eb] disabled:text-neutral-400"
-                    >
-                      Submit
-                    </button>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">Last Name</label>
+                      <input
+                        type="text"
+                        placeholder="Last Name"
+                        className={`${inputClass} mt-2`}
+                        value={formData.lastName}
+                        onChange={(event) => updateField("lastName", event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">Email</label>
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        className={`${inputClass} mt-2`}
+                        value={formData.email}
+                        onChange={(event) => updateField("email", event.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">Phone Number</label>
+                      <input
+                        type="tel"
+                        placeholder="Phone Number"
+                        className={`${inputClass} mt-2`}
+                        value={formData.phone}
+                        onChange={(event) => updateField("phone", event.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
-              </SectionCard>
-            </form>
-          )}
+
+                <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <PropertyIcon />
+                    <h3 className="text-lg font-semibold text-neutral-900">Property Details</h3>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800">Property Address</label>
+                    <input
+                      type="text"
+                      placeholder="Property Address"
+                      className={`${inputClass} mt-2`}
+                      value={formData.propertyAddress}
+                      onChange={(event) => updateField("propertyAddress", event.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800">
+                      Google Maps Location Pin
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="Google Maps Location Pin"
+                      className={`${inputClass} mt-2`}
+                      value={formData.locationPin}
+                      onChange={(event) => updateField("locationPin", event.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800">Property Type</label>
+                    <select
+                      className={`${inputClass} mt-2`}
+                      value={formData.propertyType}
+                      onChange={(event) => updateField("propertyType", event.target.value)}
+                    >
+                      {propertyTypeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">
+                        Number of Bedrooms
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Number of Bedrooms"
+                        className={`${inputClass} mt-2`}
+                        value={formData.bedrooms}
+                        onChange={(event) => updateField("bedrooms", event.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">
+                        Number of Bathrooms
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Number of Bathrooms"
+                        className={`${inputClass} mt-2`}
+                        value={formData.bathrooms}
+                        onChange={(event) => updateField("bathrooms", event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">
+                        Building Size (sqm)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Building Size (sqm)"
+                        className={`${inputClass} mt-2`}
+                        value={formData.buildingSize}
+                        onChange={(event) => updateField("buildingSize", event.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">
+                        Land Size (sqm)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Land Size (sqm)"
+                        className={`${inputClass} mt-2`}
+                        value={formData.landSize}
+                        onChange={(event) => updateField("landSize", event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800">
+                      Property Description
+                    </label>
+                    <textarea
+                      placeholder="Property Description"
+                      rows={4}
+                      className={`${inputClass} mt-2 resize-none`}
+                      value={formData.propertyDescription}
+                      onChange={(event) => updateField("propertyDescription", event.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <RentIcon />
+                    <h3 className="text-lg font-semibold text-neutral-900">
+                      {intent === "rent" ? "Rental Details" : "Sale Details"}
+                    </h3>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800">{tenureLabel}</label>
+                    <select
+                      className={`${inputClass} mt-2`}
+                      value={intent === "rent" ? formData.rentDuration : formData.tenure}
+                      onChange={(event) =>
+                        intent === "rent"
+                          ? updateField("rentDuration", event.target.value)
+                          : updateField("tenure", event.target.value)
+                      }
+                    >
+                      <option value="">{intent === "rent" ? "Select rental tenure" : "Select tenure"}</option>
+                      {tenureOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {intent === "sale" && (
+                    <div>
+                      <p className="text-sm text-neutral-600">
+                        *If leasehold, please specify the remaining lease period
+                      </p>
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium text-neutral-800">Years</label>
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="Years"
+                          className={`${inputClass} mt-2`}
+                          value={formData.leaseYears}
+                          onChange={(event) => updateField("leaseYears", event.target.value)}
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-neutral-800">
+                          Building Permits
+                        </label>
+                        <select
+                          className={`${inputClass} mt-2`}
+                          value={formData.buildingPermits}
+                          onChange={(event) => updateField("buildingPermits", event.target.value)}
+                        >
+                          <option value="">Select Building Permits</option>
+                          {buildingPermitOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800">{priceLabel}</label>
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder={priceLabel}
+                      className={`${inputClass} mt-2`}
+                      value={formData.price}
+                      onChange={(event) => updateField("price", event.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <MediaIcon />
+                    <h3 className="text-lg font сем-semibold text-neutral-900">Photos and Media</h3>
+                  </div>
+                  <p className="text-sm text-neutral-600">
+                    Upload images and video of your property
+                  </p>
+                  <label
+                    htmlFor="propertyMedia"
+                    className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#d7cec6] bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c] hover:bg-[#f9f1ee]"
+                  >
+                    <input id="propertyMedia" name="propertyMedia" type="file" multiple className="sr-only" />
+                    <svg
+                      aria-hidden="true"
+                      className="h-12 w-12 text-[#7a1c1c]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path d="M12 2v20M2 12h20" strokeLinecap="round" strokeWidth={2} />
+                    </svg>
+                    <p className="text-sm font-medium text-neutral-800">
+                      Upload up to 10 photos (JPG/PNG, max 2MB each) and 1 video (MP4, max 1 minute, 10MB)
+                      showcasing key areas of the property.
+                    </p>
+                  </label>
+                </div>
+
+                <div className="rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
+                  <p className="text-sm font-medium text-neutral-900">
+                    Make sure everything looks correct before submitting.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={isSubmitDisabled}
+                    className="mt-5 w-full rounded-lg bg-[#7a1c1c] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#651515] disabled:bg-[#c7b9b2] disabled:text-white/80"
+                  >
+                    Submit Application
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </section>
+
+
+      </main>
+
+            <footer className=" bg-[#7a1c1c] text-white z-10">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-6 py-12 sm:px-10 lg:px-0">
+          <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
+            </div>
+          </div>
+          <div className="grid gap-8 text-sm sm:grid-cols-2 lg:grid-cols-6">
+            {footerSections.map((section) => (
+              <div key={section.title} className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
+                  {section.title}
+                </p>
+                <ul className="space-y-2 text-white/90">
+                  {section.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between">
+            <span>The functional currency of trade in Indonesia is the Indonesian Rupiah (IDR).</span>
+            <span>©2025 NF Group | All Rights Reserved</span>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
