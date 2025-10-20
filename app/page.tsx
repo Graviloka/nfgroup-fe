@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
-import { ContactIcon, PropertyIcon, RentIcon, MediaIcon } from "../components/Icons";
+import { ContactIcon, PropertyIcon, RentIcon, MediaIcon, UploadIcon } from "../components/Icons";
 
 type PropertyIntent = "rent" | "sale";
 
@@ -24,6 +24,9 @@ type FormState = {
   leaseYears: string;
   buildingPermits: string;
   price: string;
+  managedByCompany: string;
+  companyName: string;
+  pricePeriod: string;
 };
 
 const initialFormState: FormState = {
@@ -44,30 +47,35 @@ const initialFormState: FormState = {
   leaseYears: "",
   buildingPermits: "",
   price: "",
+  managedByCompany: "",
+  companyName: "",
+  pricePeriod: "monthly",
 };
 
 const allPropertyTypeOptions = [
   { label: "Villa", value: "villa" },
+  { label: "Townhouse", value: "townhouse" },
   { label: "Apartment", value: "apartment" },
-  { label: "House", value: "house" },
+  { label: "Land", value: "land" },
+  { label: "Other", value: "other" },
 ];
 
 const rentalDurationOptions = [
-  { label: "Daily", value: "daily" },
   { label: "Monthly", value: "monthly" },
   { label: "Yearly", value: "yearly" },
 ];
 
 const saleTenureOptions = [
-  { label: "Freehold", value: "freehold" },
+  { label: "Freehold (SHM)", value: "freehold_shm" },
   { label: "Leasehold", value: "leasehold" },
+  { label: "HGB (Company Title)", value: "hgb" },
+  { label: "Right of Use (Hak Pakai)", value: "hak_pakai" },
 ];
 
 const buildingPermitOptions = [
-  { label: "IMB", value: "imb" },
-  { label: "PBG", value: "pbg" },
+  { label: "IMG / PBG", value: "img_pbg" },
   { label: "SLF", value: "slf" },
-  { label: "Others", value: "others" },
+  { label: "None", value: "none" },
 ];
 
 const footerSections = [
@@ -101,7 +109,7 @@ const backgroundImageUrl =
   "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1800&q=80";
 
 export default function Home() {
-  const [intent, setIntent] = useState<PropertyIntent>("sale");
+  const [intent, setIntent] = useState<PropertyIntent>("rent");
   const [formData, setFormData] = useState<FormState>(initialFormState);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -113,7 +121,7 @@ export default function Home() {
   const propertyTypeOptions = useMemo(() => {
     if (intent === "rent") {
       return allPropertyTypeOptions.filter(
-        (option) => option.value === "villa" || option.value === "apartment"
+        (option) => option.value === "villa" || option.value === "townhouse" || option.value === "apartment"
       );
     }
     return allPropertyTypeOptions;
@@ -121,7 +129,7 @@ export default function Home() {
 
   const tenureOptions = intent === "rent" ? rentalDurationOptions : saleTenureOptions;
   const priceLabel = intent === "rent" ? "Rental Price (IDR)" : "Listing Price (IDR)";
-  const tenureLabel = intent === "rent" ? "Rental Tenure" : "Tenure";
+  const tenureLabel = intent === "rent" ? "Rental Type" : "Tenure";
 
   const inputClass =
     "w-full rounded-lg border border-[#d9d1c8] bg-white px-4 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#7a1c1c] focus:outline-none focus:ring-2 focus:ring-[#7a1c1c]/20";
@@ -135,6 +143,9 @@ export default function Home() {
       leaseYears: "",
       buildingPermits: "",
       price: "",
+      managedByCompany: "",
+      companyName: "",
+      pricePeriod: "monthly",
     }));
   };
 
@@ -172,7 +183,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white text-neutral-900 relative overflow-y-scroll">
+    <div className="flex flex-col h-screen bg-white text-neutral-900 relative overflow-y-scroll">
       <main className="flex flex-1 lg:flex-row">
         <section id="hero-section" className="relative h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
           <img
@@ -201,9 +212,9 @@ export default function Home() {
 
         <section
           id="form-section"
-          className="h-full max-h-screen overflow-y-auto bg-white px-6 py-10 sm:px-10 lg:px-16"
+          className="h-full max-h-screen overflow-y-auto bg-white px-6 py-10 sm:px-10 lg:px-16 lg:w-[50%]"
         >
-          <div className="mx-auto w-full max-w-2xl space-y-6">
+          <div className="mx-auto w-full space-y-6">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold text-neutral-900">
                 Submit your property for rent or sale.
@@ -444,7 +455,7 @@ export default function Home() {
                           : updateField("tenure", event.target.value)
                       }
                     >
-                      <option value="">{intent === "rent" ? "Select rental tenure" : "Select tenure"}</option>
+                      <option value="">{intent === "rent" ? "Select Rental Type" : "Select Tenure"}</option>
                       {tenureOptions.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
@@ -452,13 +463,42 @@ export default function Home() {
                       ))}
                     </select>
                   </div>
-                  {intent === "sale" && (
+                   {intent === "rent" && (
+                     <div>
+                       <label className="block text-sm font-medium text-neutral-800">
+                         Managed by a Property Management Company
+                       </label>
+                       <select
+                         className={`${inputClass} mt-2`}
+                         value={formData.managedByCompany}
+                         onChange={(event) => updateField("managedByCompany", event.target.value)}
+                       >
+                         <option value="">Select option</option>
+                         <option value="yes">Yes</option>
+                         <option value="no">No</option>
+                       </select>
+                     </div>
+                   )}
+                   {intent === "rent" && formData.managedByCompany === "yes" && (
+                     <div>
+                       <label className="block text-sm font-medium text-neutral-800">
+                         Please specify the company name
+                       </label>
+                       <input
+                         type="text"
+                         placeholder="Company name"
+                         className={`${inputClass} mt-2`}
+                         value={formData.companyName}
+                         onChange={(event) => updateField("companyName", event.target.value)}
+                       />
+                     </div>
+                   )}
+                  {intent === "sale" && formData.tenure === "leasehold" && (
                     <div>
                       <p className="text-sm text-neutral-600">
-                        *If leasehold, please specify the remaining lease period
+                        Please specify remaining lease period
                       </p>
-                      <div className="mt-3">
-                        <label className="block text-sm font-medium text-neutral-800">Years</label>
+                      <div className="mt-0">
                         <input
                           type="number"
                           min={0}
@@ -468,61 +508,82 @@ export default function Home() {
                           onChange={(event) => updateField("leaseYears", event.target.value)}
                         />
                       </div>
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-neutral-800">
-                          Building Permits
-                        </label>
+                    </div>
+                  )}
+                  {intent === "sale" && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-neutral-800">
+                        Building Permits
+                      </label>
+                      <select
+                        className={`${inputClass} mt-2`}
+                        value={formData.buildingPermits}
+                        onChange={(event) => updateField("buildingPermits", event.target.value)}
+                      >
+                        <option value="">Select Building Permits</option>
+                        {buildingPermitOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {intent === "rent" ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-800">Rental Price (IDR)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="Rental Price"
+                          className={`${inputClass} mt-2`}
+                          value={formData.price}
+                          onChange={(event) => updateField("price", event.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-800">Period</label>
                         <select
                           className={`${inputClass} mt-2`}
-                          value={formData.buildingPermits}
-                          onChange={(event) => updateField("buildingPermits", event.target.value)}
+                          value={formData.pricePeriod}
+                          onChange={(event) => updateField("pricePeriod", event.target.value)}
                         >
-                          <option value="">Select Building Permits</option>
-                          {buildingPermitOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
+                          <option value="monthly">Per Month</option>
+                          <option value="yearly">Per Year</option>
                         </select>
                       </div>
                     </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-800">{priceLabel}</label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder={priceLabel}
+                        className={`${inputClass} mt-2`}
+                        value={formData.price}
+                        onChange={(event) => updateField("price", event.target.value)}
+                      />
+                    </div>
                   )}
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-800">{priceLabel}</label>
-                    <input
-                      type="number"
-                      min={0}
-                      placeholder={priceLabel}
-                      className={`${inputClass} mt-2`}
-                      value={formData.price}
-                      onChange={(event) => updateField("price", event.target.value)}
-                    />
-                  </div>
                 </div>
 
                 <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
                   <div className="flex items-center gap-3">
                     <MediaIcon />
-                    <h3 className="text-lg font сем-semibold text-neutral-900">Photos and Media</h3>
+                    <h3 className="text-lg font-bold text-neutral-900">Photos and Media</h3>
                   </div>
                   <p className="text-sm text-neutral-600">
                     Upload images and video of your property
                   </p>
                   <label
                     htmlFor="propertyMedia"
-                    className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#d7cec6] bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c] hover:bg-[#f9f1ee]"
+                    className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#d7cec6] bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c]"
                   >
                     <input id="propertyMedia" name="propertyMedia" type="file" multiple className="sr-only" />
-                    <svg
-                      aria-hidden="true"
-                      className="h-12 w-12 text-[#7a1c1c]"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path d="M12 2v20M2 12h20" strokeLinecap="round" strokeWidth={2} />
-                    </svg>
-                    <p className="text-sm font-medium text-neutral-800">
+                    <UploadIcon />
+                    <p className="text-neutral-500 font-medium mt-3">
                       Upload up to 10 photos (JPG/PNG, max 2MB each) and 1 video (MP4, max 1 minute, 10MB)
                       showcasing key areas of the property.
                     </p>
@@ -531,7 +592,7 @@ export default function Home() {
 
                 <div className="rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
                   <p className="text-sm font-medium text-neutral-900">
-                    Make sure everything looks correct before submitting.
+                    <em>Make sure everything looks correct before submitting.</em>
                   </p>
                   <button
                     type="submit"
@@ -545,11 +606,8 @@ export default function Home() {
             )}
           </div>
         </section>
-
-
       </main>
-
-            <footer className=" bg-[#7a1c1c] text-white z-10">
+      <footer className="bg-[#7a1c1c] text-white z-10 relative">
         <div className="mx-auto w-full max-w-6xl space-y-10 px-6 py-12 sm:px-10 lg:px-0">
           <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
