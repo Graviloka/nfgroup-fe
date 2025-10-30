@@ -1,5 +1,8 @@
 "use client";
 
+const API_ENDPOINT_SALE = "https://nfgroup.hopbackend.gravitasi.net/api/villa-for-sales";
+const API_ENDPOINT_RENT = "https://nfgroup.hopbackend.gravitasi.net/api/villa-for-rents";
+
 import { FormEvent, useMemo, useState } from "react";
 
 import { ContactIcon, PropertyIcon, RentIcon, MediaIcon, UploadIcon } from "../components/Icons";
@@ -27,6 +30,7 @@ type FormState = {
   managedByCompany: string;
   companyName: string;
   pricePeriod: string;
+  villaPhotos: File[];
 };
 
 const initialFormState: FormState = {
@@ -50,6 +54,7 @@ const initialFormState: FormState = {
   managedByCompany: "",
   companyName: "",
   pricePeriod: "monthly",
+  villaPhotos: [],
 };
 
 const allPropertyTypeOptions = [
@@ -139,7 +144,7 @@ export default function Home() {
   const inputClass =
     "w-full rounded-lg border border-[#d9d1c8] bg-white px-4 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#7a1c1c] focus:outline-none focus:ring-2 focus:ring-[#7a1c1c]/20";
 
-  const handleIntentChange = (value: PropertyIntent) => {
+    const handleIntentChange = (value: PropertyIntent) => {
     setIntent(value);
     setFormData((prev) => ({
       ...prev,
@@ -151,13 +156,68 @@ export default function Home() {
       managedByCompany: "",
       companyName: "",
       pricePeriod: "monthly",
+      villaPhotos: [],
     }));
   };
 
-  const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const validateFile = (file: File): string | null => {
+    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedVideoTypes = ['video/mp4'];
+
+    if (allowedImageTypes.includes(file.type)) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB
+        return 'Image file size must not exceed 2MB';
+      }
+    } else if (allowedVideoTypes.includes(file.type)) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        return 'Video file size must not exceed 10MB';
+      }
+    } else {
+      return 'Only JPG, PNG images and MP4 videos are allowed';
+    }
+
+    return null;
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+
+    Array.from(files).forEach((file) => {
+      const error = validateFile(file);
+      if (error) {
+        errors.push(`${file.name}: ${error}`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (errors.length > 0) {
+      alert(`Some files were rejected:\n${errors.join('\n')}`);
+    }
+
+    if (validFiles.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        villaPhotos: [...prev.villaPhotos, ...validFiles].slice(0, 11), // Max 10 images + 1 video
+      }));
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      villaPhotos: prev.villaPhotos.filter((_, i) => i !== index),
     }));
   };
 
@@ -166,7 +226,35 @@ export default function Home() {
     return typeof value === "string" ? value.trim().length === 0 : !value;
   });
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const uploadFilesToStrapi = async (files: File[]): Promise<number[]> => {
+    const uploadedFileIds: number[] = [];
+
+    for (const file of files) {
+      const formDataUpload = new FormData();
+      formDataUpload.append('files', file);
+
+      const uploadResponse = await fetch(`${API_ENDPOINT_SALE.replace('/villa-for-sales', '/upload')}`, {
+        method: 'POST',
+        headers: {
+          "Authorization": "Bearer 483ba344dd1a74ca0aaf28cac4d7b0df8e8c12e9330cc66ff532f38b7fb19929b8bbf380cbc7bdb1a006893e3c241c7cbeb705bd33652bc0cad0b139cdb199812295ba40e27cf706143638cd31d987fc4b2a88727cd7c075d1870b27c673cc28c1ec853a0bc1fb5b20d9855dbcc1d64c4937a5b974446635dc89caa8c28d2cee",
+        },
+        body: formDataUpload,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Failed to upload file: ${file.name}`);
+      }
+
+      const uploadResult = await uploadResponse.json();
+      if (uploadResult && uploadResult[0] && uploadResult[0].id) {
+        uploadedFileIds.push(uploadResult[0].id);
+      }
+    }
+
+    return uploadedFileIds;
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const missing = requiredFields.filter((field) => {
@@ -178,7 +266,102 @@ export default function Home() {
       return;
     }
 
-    setIsSubmitted(true);
+    try {
+      // Upload files first if any
+      let uploadedFileIds: number[] = [];
+      if (formData.villaPhotos.length > 0) {
+        uploadedFileIds = await uploadFilesToStrapi(formData.villaPhotos);
+      }
+
+      let payload: any;
+
+      if (intent === "sale") {
+        payload = {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email_address: formData.email,
+            phone_number: formData.phone,
+            property_address: formData.propertyAddress,
+            maps_long_lat: formData.locationPin,
+            property_type: formData.propertyType,
+            bedroom_number: parseInt(formData.bedrooms) || 0,
+            bathroom_number: parseInt(formData.bathrooms) || 0,
+            building_size: parseInt(formData.buildingSize) || 0,
+            land_size: parseInt(formData.landSize) || 0,
+            property_description: formData.propertyDescription ? [
+              {
+                type: "paragraph",
+                children: [
+                  {
+                    type: "text",
+                    text: formData.propertyDescription
+                  }
+                ]
+              }
+            ] : null,
+            tenure: formData.tenure,
+            remaining_lease: parseInt(formData.leaseYears) || 0,
+            building_permits: formData.buildingPermits,
+            listing_price: parseInt(formData.price) || 0,
+            villa_photos: uploadedFileIds.length > 0 ? uploadedFileIds : null,
+          }
+        };
+      } else {
+        // For Rent payload
+        payload = {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email_address: formData.email,
+            phone_number: formData.phone,
+            property_address: formData.propertyAddress,
+            maps_long_lat: formData.locationPin,
+            property_type: formData.propertyType,
+            bedroom_numbers: parseInt(formData.bedrooms) || 0,
+            bathroom_number: parseInt(formData.bathrooms) || 0,
+            building_size: parseInt(formData.buildingSize) || 0,
+            land_size: parseInt(formData.landSize) || 0,
+            property_description: formData.propertyDescription ? [
+              {
+                type: "paragraph",
+                children: [
+                  {
+                    type: "text",
+                    text: formData.propertyDescription
+                  }
+                ]
+              }
+            ] : null,
+            rental_type: formData.rentDuration,
+            managed_property: formData.managedByCompany === "yes",
+            company_name: formData.managedByCompany === "yes" ? formData.companyName : null,
+            rental_price: parseInt(formData.price) || 0,
+            rental_period: formData.pricePeriod,
+            villa_photos: uploadedFileIds.length > 0 ? uploadedFileIds : null,
+          }
+        };
+      }
+
+      const response = await fetch(intent === "sale" ? API_ENDPOINT_SALE : API_ENDPOINT_RENT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 483ba344dd1a74ca0aaf28cac4d7b0df8e8c12e9330cc66ff532f38b7fb19929b8bbf380cbc7bdb1a006893e3c241c7cbeb705bd33652bc0cad0b139cdb199812295ba40e27cf706143638cd31d987fc4b2a88727cd7c075d1870b27c673cc28c1ec853a0bc1fb5b20d9855dbcc1d64c4937a5b974446635dc89caa8c28d2cee",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
+
+      // Handle success
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // TODO: handle error state
+    }
   };
 
   const handleReset = () => {
@@ -586,13 +769,51 @@ export default function Home() {
                     htmlFor="propertyMedia"
                     className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#d7cec6] bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c]"
                   >
-                    <input id="propertyMedia" name="propertyMedia" type="file" multiple className="sr-only" />
+                    <input
+                      id="propertyMedia"
+                      name="propertyMedia"
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/jpg,image/png,video/mp4"
+                      className="sr-only"
+                      onChange={handleFileUpload}
+                    />
                     <UploadIcon />
                     <p className="text-neutral-500 font-medium mt-3">
                       Upload up to 10 photos (JPG/PNG, max 2MB each) and 1 video (MP4, max 1 minute, 10MB)
                       showcasing key areas of the property.
                     </p>
                   </label>
+
+                  {formData.villaPhotos.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {formData.villaPhotos.map((file, index) => (
+                        <div key={index} className="relative group">
+                          {file.type.startsWith('image/') ? (
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg border"
+                            />
+                          ) : (
+                            <div className="w-full h-24 bg-gray-100 rounded-lg border flex items-center justify-center">
+                              <video className="w-8 h-8 text-gray-400">
+                                <source src={URL.createObjectURL(file)} type={file.type} />
+                              </video>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            ×
+                          </button>
+                          <p className="text-xs text-gray-500 mt-1 truncate">{file.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="rounded-2xl border border-[#e3dcd8] bg-[#f6f2ef] px-6 py-6 shadow-sm">
