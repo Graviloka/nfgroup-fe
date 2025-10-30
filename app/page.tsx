@@ -352,8 +352,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-white text-neutral-900 relative overflow-y-scroll">
-      <main className="flex flex-1 lg:flex-row">
-        <section id="hero-section" className="relative h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
+      <main className="flex flex-1 flex-col lg:flex-row">
+        <section id="hero-section" className="relative min-h-[50vh] lg:h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
           <img
             src={backgroundImageUrl}
             alt="Coastal view"
@@ -378,10 +378,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section
-          id="form-section"
-          className="h-full max-h-screen overflow-y-auto bg-white px-6 py-10 sm:px-10 lg:px-16 lg:w-[50%]"
-        >
+        <section id="form-section" className="h-full max-h-screen overflow-y-auto bg-white px-6 py-10 sm:px-10 lg:px-16 lg:w-[50%]">
           <div className="mx-auto w-full space-y-6">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold text-neutral-900">
