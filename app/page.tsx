@@ -289,17 +289,7 @@ export default function Home() {
             bathroom_number: parseInt(formData.bathrooms) || 0,
             building_size: parseInt(formData.buildingSize) || 0,
             land_size: parseInt(formData.landSize) || 0,
-            property_description: formData.propertyDescription ? [
-              {
-                type: "paragraph",
-                children: [
-                  {
-                    type: "text",
-                    text: formData.propertyDescription
-                  }
-                ]
-              }
-            ] : null,
+            property_description: formData.propertyDescription || null,
             tenure: formData.tenure,
             remaining_lease: parseInt(formData.leaseYears) || 0,
             building_permits: formData.buildingPermits,
@@ -318,21 +308,11 @@ export default function Home() {
             property_address: formData.propertyAddress,
             maps_long_lat: formData.locationPin,
             property_type: formData.propertyType,
-            bedroom_numbers: parseInt(formData.bedrooms) || 0,
+            bedroom_number: parseInt(formData.bedrooms) || 0,
             bathroom_number: parseInt(formData.bathrooms) || 0,
             building_size: parseInt(formData.buildingSize) || 0,
             land_size: parseInt(formData.landSize) || 0,
-            property_description: formData.propertyDescription ? [
-              {
-                type: "paragraph",
-                children: [
-                  {
-                    type: "text",
-                    text: formData.propertyDescription
-                  }
-                ]
-              }
-            ] : null,
+            property_description: formData.propertyDescription || null,
             rental_type: formData.rentDuration,
             managed_property: formData.managedByCompany === "yes",
             company_name: formData.managedByCompany === "yes" ? formData.companyName : null,
