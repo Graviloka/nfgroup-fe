@@ -351,7 +351,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white text-neutral-900 relative overflow-y-scroll">
+    <div className="flex flex-col h-screen bg-white text-neutral-900 overflow-y-scroll">
       <main className="flex flex-1 flex-col lg:flex-row">
         <section id="hero-section" className="relative min-h-[50vh] lg:h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
           <img
