@@ -104,14 +104,16 @@ cp .env.example .env.local
 Edit `.env.local` with your configuration:
 
 ```env
-# API Endpoints
+# Public API Endpoints (safe to expose to client)
 NEXT_PUBLIC_API_SALE=https://your-strapi-instance.com/api/villa-for-sales
 NEXT_PUBLIC_API_RENT=https://your-strapi-instance.com/api/villa-for-rents
 NEXT_PUBLIC_API_UPLOAD=https://your-strapi-instance.com/api/upload
 
-# Authentication
-NEXT_PUBLIC_API_AUTH_TOKEN=your_strapi_auth_token_here
+# Private Authentication Token (server-side only)
+API_AUTH_TOKEN=your_strapi_auth_token_here
 ```
+
+> **🔒 Security Note**: Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Sensitive data like API tokens should NOT use this prefix to prevent exposure in client-side code.
 
 ### 4. Development Server
 
@@ -246,4 +248,4 @@ For support or questions, please contact the development team.
 
 ---
 
-**Built with ❤️ by NF Group Development Team**
+**Built with ❤️ by Zapra Gartiast (zapra@gravitasi.co.id)**

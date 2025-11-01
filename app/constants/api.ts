@@ -2,7 +2,7 @@ export const API_ENDPOINTS = {
   SALE: process.env.NEXT_PUBLIC_API_SALE!,
   RENT: process.env.NEXT_PUBLIC_API_RENT!,
   UPLOAD: process.env.NEXT_PUBLIC_API_UPLOAD!,
-  AUTH_TOKEN: process.env.NEXT_PUBLIC_API_AUTH_TOKEN!,
+  AUTH_TOKEN: process.env.API_AUTH_TOKEN!,
 } as const;
 
 export const FILE_CONSTRAINTS = {
