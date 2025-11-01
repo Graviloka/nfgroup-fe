@@ -50,7 +50,9 @@ export function FormSubmission({
     <div className="rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-6 py-6 shadow-sm">
       {submitError && (
         <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
-          <p className="text-sm text-red-600">{submitError}</p>
+          <div className="text-sm text-red-600 whitespace-pre-line">
+            {submitError}
+          </div>
         </div>
       )}
       <p className="text-sm font-medium text-neutral-900">

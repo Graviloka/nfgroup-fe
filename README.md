@@ -156,6 +156,15 @@ npm run lint         # Run ESLint
 
 ## 🔌 API Integration
 
+### Architecture
+
+The application uses a hybrid approach for API calls:
+
+- **Client-side**: File uploads (to Strapi's upload endpoint)
+- **Server-side**: Form submissions (via Next.js API routes for security)
+
+This ensures sensitive authentication tokens are never exposed to the client.
+
 ### Backend Requirements
 
 The application expects a Strapi 5 backend with the following content types:

@@ -105,6 +105,11 @@ export function usePropertyForm() {
       }
     });
 
+    // Check minimum photo requirement
+    if (formData.villaPhotos.length < 2) {
+      errors.photos = 'At least 2 photos are required';
+    }
+
     return {
       isValid: Object.keys(errors).length === 0,
       errors,
@@ -196,7 +201,9 @@ export function usePropertyForm() {
   const submitForm = useCallback(async () => {
     const validation = validateForm();
     if (!validation.isValid) {
-      setSubmitError('Please fill in all required fields');
+      // Show specific validation errors
+      const errorMessages = Object.values(validation.errors);
+      setSubmitError(errorMessages.join('; '));
       return;
     }
 
@@ -204,17 +211,89 @@ export function usePropertyForm() {
     setSubmitError(null);
 
     try {
-      const payload = await createPayload();
-      const endpoint = intent === "sale" ? API_ENDPOINTS.SALE : API_ENDPOINTS.RENT;
+      // Upload files first if any
+      let uploadedFileIds: number[] = [];
+      if (formData.villaPhotos.length > 0) {
+        uploadedFileIds = await uploadFiles(formData.villaPhotos);
+      }
 
-      const response = await fetch(endpoint, {
+      // Prepare data for API route
+      const submitData = {
+        intent,
+        formData: {
+          ...formData,
+          villaPhotos: uploadedFileIds, // Use actual file IDs from upload
+        }
+      };
+
+      const response = await fetch('/api/submit', {
         method: "POST",
-        headers: API_HEADERS,
-        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submitData),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to submit form");
+        // Handle different error formats from Strapi
+        let errorMessage = result.error || "Failed to submit form";
+
+        if (result.details?.errors) {
+          if (Array.isArray(result.details.errors)) {
+            // Handle array format: [{ path: [...], message: "...", ... }]
+            const fieldErrors = result.details.errors.map((err: any) => {
+              const fieldName = err.path?.[0] || 'unknown field';
+              // Clean up the error message by removing regex patterns
+              let cleanMessage = err.message || '';
+
+              // Remove regex pattern from message for user-friendliness
+              cleanMessage = cleanMessage.replace(/ must match the following: "\/[^"]*\/?"/, ' has invalid format');
+              // Remove the field name from the beginning of the message if it exists
+              cleanMessage = cleanMessage.replace(new RegExp(`^${fieldName}\\s*`), '');
+              // Clean up any remaining escaped quotes
+              cleanMessage = cleanMessage.replace(/"/g, '');
+
+              // Convert field names to user-friendly labels
+              const fieldLabels: Record<string, string> = {
+                'phone_number': 'Phone Number',
+                'maps_long_lat': 'Location Pin',
+                'email_address': 'Email',
+                'first_name': 'First Name',
+                'last_name': 'Last Name',
+                'property_address': 'Property Address'
+              };
+
+              const friendlyField = fieldLabels[fieldName] || fieldName.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+
+              return `${friendlyField}: ${cleanMessage}`;
+            });
+
+            errorMessage = fieldErrors.map((err: string) => `• ${err}`).join('\n');
+          } else if (typeof result.details.errors === 'object') {
+            // Handle object format: { field: [messages] }
+            const fieldErrors = Object.entries(result.details.errors).map(([field, messages]) => {
+              const fieldLabels: Record<string, string> = {
+                'phone_number': 'Phone Number',
+                'maps_long_lat': 'Location Pin',
+                'email_address': 'Email',
+                'first_name': 'First Name',
+                'last_name': 'Last Name',
+                'property_address': 'Property Address'
+              };
+
+              const friendlyField = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+              const message = Array.isArray(messages) ? messages.join(', ') : messages;
+
+              return `${friendlyField}: ${message}`;
+            });
+
+            errorMessage = fieldErrors.join('; ');
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       setIsSubmitted(true);
@@ -224,7 +303,7 @@ export function usePropertyForm() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [validateForm, createPayload, intent]);
+  }, [validateForm, formData, intent, uploadFiles]);
 
   const resetForm = useCallback(() => {
     setFormData(initialFormState);

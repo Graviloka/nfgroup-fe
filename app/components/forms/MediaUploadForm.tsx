@@ -38,8 +38,8 @@ export function MediaUploadForm({
         />
         <UploadIcon />
         <p className="text-neutral-500 font-medium mt-3">
-          Upload up to 10 photos (JPG/PNG, max 2MB each) and 1 video (MP4, max 1 minute, 10MB)
-          showcasing key areas of the property.
+          Upload at least 2 photos (JPG/PNG, max 2MB each) and up to 1 video (MP4, max 1 minute, 10MB)
+          showcasing key areas of the property. Photos are required.
         </p>
         {isUploading && (
           <p className="text-sm text-blue-600">Uploading files...</p>
