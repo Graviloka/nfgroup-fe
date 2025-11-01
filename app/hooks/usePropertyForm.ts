@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { PropertyFormData, PropertyIntent, FormValidationResult } from '../types/forms';
 import { initialFormState, requiredFields, allPropertyTypeOptions, rentalDurationOptions, saleTenureOptions } from '../constants/forms';
-import { API_ENDPOINTS, API_HEADERS } from '../constants/api';
 import { useFileUpload } from './useFileUpload';
 
 interface SalePayload {

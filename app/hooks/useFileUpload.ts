@@ -39,21 +39,19 @@ export function useFileUpload() {
     const formData = new FormData();
     formData.append('files', file);
 
-    const uploadResponse = await fetch(API_ENDPOINTS.UPLOAD, {
+    const uploadResponse = await fetch('/api/upload', {
       method: 'POST',
-      headers: {
-        "Authorization": `Bearer ${API_ENDPOINTS.AUTH_TOKEN}`,
-      },
       body: formData,
     });
 
     if (!uploadResponse.ok) {
-      throw new Error(`Failed to upload file: ${file.name}`);
+      const errorData = await uploadResponse.json();
+      throw new Error(errorData.details?.[0] || errorData.error || `Failed to upload file: ${file.name}`);
     }
 
     const uploadResult = await uploadResponse.json();
-    if (uploadResult && uploadResult[0] && uploadResult[0].id) {
-      return uploadResult[0].id;
+    if (uploadResult.success && uploadResult.data && uploadResult.data[0]) {
+      return uploadResult.data[0];
     }
 
     throw new Error('Invalid upload response');
@@ -63,21 +61,35 @@ export function useFileUpload() {
     setIsUploading(true);
     setUploadProgress(0);
 
-    const uploadedFileIds: number[] = [];
-
     try {
-      for (let i = 0; i < files.length; i++) {
-        const fileId = await uploadFile(files[i]);
-        uploadedFileIds.push(fileId);
-        setUploadProgress(((i + 1) / files.length) * 100);
+      // Create FormData with all files
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.details?.[0] || errorData.error || 'Failed to upload files');
       }
 
-      return uploadedFileIds;
+      const uploadResult = await uploadResponse.json();
+      if (uploadResult.success && uploadResult.data) {
+        setUploadProgress(100);
+        return uploadResult.data;
+      }
+
+      throw new Error('Invalid upload response');
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
     }
-  }, [uploadFile]);
+  }, []);
 
   const validateAndProcessFiles = useCallback((files: FileList): {
     validFiles: File[];
