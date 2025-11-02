@@ -20,49 +20,69 @@ A modern, responsive property listing platform built with Next.js 15 and TypeScr
 
 - 📝 **Property Submission Form** - Comprehensive form for property listings
 - 🏷️ **Dual Listing Types** - Support for both rental and sale properties
-- 📸 **Media Upload** - Multiple image and video upload with validation
+- 📸 **Media Upload** - Multiple image and video upload with validation (minimum 2 photos required)
 - 📱 **Responsive Design** - Mobile-first approach with modern UI
 - 🔒 **Type Safety** - Full TypeScript coverage
 - 🎨 **Modern UI** - Clean, professional design with consistent color scheme
 - ⚡ **Performance** - Optimized with Next.js 15 and Turbopack
-- 🛡️ **Security** - Environment variables and proper data validation
+- 🛡️ **Security** - Server-side API routes with secure authentication
+- ✅ **Form Validation** - Client and server-side validation with detailed error messages
 
 ## 📁 Project Structure
 
 ```
 nfgroup-frontend/
 ├── app/                          # Next.js App Router
-│   ├── components/               # React Components
+│   ├── api/                     # API Routes (Server-side)
+│   │   ├── submit/              # Form submission endpoint
+│   │   │   └── route.ts
+│   │   └── upload/              # File upload endpoint
+│   │       └── route.ts
+│   ├── components/              # React Components
 │   │   ├── forms/               # Form Components
 │   │   │   ├── ContactForm.tsx
 │   │   │   ├── PropertyDetailsForm.tsx
 │   │   │   ├── RentalDetailsForm.tsx
 │   │   │   ├── MediaUploadForm.tsx
 │   │   │   └── FormSubmission.tsx
-│   │   └── layout/              # Layout Components
-│   │       ├── HeroSection.tsx
-│   │       ├── FormSection.tsx
-│   │       └── Footer.tsx
-│   ├── hooks/                   # Custom React Hooks
-│   │   ├── useFileUpload.ts
-│   │   └── usePropertyForm.ts
-│   ├── types/                   # TypeScript Definitions
-│   │   ├── api.ts
-│   │   ├── forms.ts
-│   │   └── footer.ts
+│   │   ├── layout/              # Layout Components
+│   │   │   ├── HeroSection.tsx
+│   │   │   ├── FormSection.tsx
+│   │   │   └── Footer.tsx
+│   │   ├── ui/                  # UI Components (future use)
+│   │   └── PropertyListingForm.tsx
 │   ├── constants/               # Application Constants
 │   │   ├── api.ts
 │   │   ├── footer.ts
 │   │   └── forms.ts
+│   ├── hooks/                   # Custom React Hooks
+│   │   ├── useFileUpload.ts
+│   │   └── usePropertyForm.ts
+│   ├── lib/                     # Utility Libraries (future use)
+│   ├── types/                   # TypeScript Definitions
+│   │   ├── api.ts
+│   │   ├── forms.ts
+│   │   └── footer.ts
+│   ├── favicon.ico              # Favicon
+│   ├── globals.css              # Global Styles
 │   ├── layout.tsx               # Root Layout
 │   ├── page.tsx                 # Main Page
-│   └── globals.css              # Global Styles
+│   └── page.module.css          # Page-specific styles
+├── components/                  # Legacy Components (to be migrated)
+│   ├── HeroStepBadge.tsx
+│   ├── Icons.tsx
+│   ├── SectionCard.tsx
+│   └── TogglePillGroup.tsx
 ├── public/                      # Static Assets
 │   ├── nfgroup_logo.svg
-│   └── cert-*.png
+│   ├── cert-arebi.png
+│   ├── cert-lsp-property.png
+│   └── *.svg                    # Other icons
 ├── .env.example                 # Environment Template
 ├── .gitignore                   # Git Ignore Rules
+├── next.config.ts               # Next.js Configuration
 ├── package.json                 # Dependencies
+├── postcss.config.mjs           # PostCSS Configuration
 ├── tailwind.config.js           # Tailwind Configuration
 ├── tsconfig.json                # TypeScript Configuration
 └── README.md                    # This file
@@ -79,8 +99,8 @@ nfgroup-frontend/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/nfgroup-frontend.git
-cd nfgroup-frontend
+git clone https://github.com/Graviloka/nfgroup-fe.git
+cd nfgroup-fe
 ```
 
 ### 2. Install Dependencies
@@ -158,12 +178,26 @@ npm run lint         # Run ESLint
 
 ### Architecture
 
-The application uses a hybrid approach for API calls:
+The application uses server-side API routes for all external API calls to ensure security:
 
-- **Client-side**: File uploads (to Strapi's upload endpoint)
-- **Server-side**: Form submissions (via Next.js API routes for security)
+- **Server-side**: File uploads (`/api/upload`) - Secure file upload with auth token
+- **Server-side**: Form submissions (`/api/submit`) - Secure form submission with auth token
 
-This ensures sensitive authentication tokens are never exposed to the client.
+This ensures sensitive authentication tokens are never exposed to the client browser.
+
+### API Routes
+
+#### `/api/upload` (POST)
+- **Purpose**: Secure file upload to Strapi
+- **Authentication**: Server-side API token
+- **Validation**: File type and size validation
+- **Response**: Array of uploaded file IDs
+
+#### `/api/submit` (POST)
+- **Purpose**: Secure form submission to Strapi
+- **Authentication**: Server-side API token
+- **Validation**: Form data validation
+- **Response**: Success/error status
 
 ### Backend Requirements
 

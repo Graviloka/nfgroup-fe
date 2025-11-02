@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { MediaIcon, UploadIcon } from '../../../components/Icons';
 
 interface MediaUploadFormProps {
@@ -13,8 +14,60 @@ export function MediaUploadForm({
   removeFile,
   isUploading
 }: MediaUploadFormProps) {
+  const [isPickerActive, setIsPickerActive] = useState(false);
+
+  useEffect(() => {
+    function onFocus() {
+      setIsPickerActive(true);
+      document.body.style.overflow = 'hidden';
+      // Create backdrop overlay
+      let backdrop = document.getElementById('file-upload-backdrop');
+      if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'file-upload-backdrop';
+        backdrop.style.position = 'fixed';
+        backdrop.style.top = '0';
+        backdrop.style.left = '0';
+        backdrop.style.width = '100vw';
+        backdrop.style.height = '100vh';
+        backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        backdrop.style.zIndex = '1000';
+        document.body.appendChild(backdrop);
+      }
+    }
+
+    function onBlur() {
+      setIsPickerActive(false);
+      document.body.style.overflow = '';
+      // Remove backdrop overlay
+      const backdrop = document.getElementById('file-upload-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
+    }
+
+    const input = document.getElementById('propertyMedia');
+    if (input) {
+      input.addEventListener('focus', onFocus);
+      input.addEventListener('blur', onBlur);
+    }
+
+    return () => {
+      if (input) {
+        input.removeEventListener('focus', onFocus);
+        input.removeEventListener('blur', onBlur);
+      }
+      // Clear body overflow and remove backdrop on unmount
+      document.body.style.overflow = '';
+      const backdrop = document.getElementById('file-upload-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
+    };
+  }, []);
+
   return (
-    <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-6 py-6 shadow-sm">
+    <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-6 py-6 shadow-sm relative z-0">
       <div className="flex items-center gap-3">
         <MediaIcon />
         <h3 className="text-lg font-bold text-neutral-900">Photos and Media</h3>

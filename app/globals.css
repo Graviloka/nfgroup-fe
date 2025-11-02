@@ -5,23 +5,26 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #ffffff;
+  color: #171717;
   font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+/* Prevent any dark mode interference */
+html {
+  color-scheme: light;
+}
+
+/* Ensure file input doesn't cause layout issues */
+input[type="file"] {
+  /* Prevent any browser-specific styling issues */
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Prevent body scrolling when file picker opens */
+body.file-picker-open {
   overflow: hidden;
 }
