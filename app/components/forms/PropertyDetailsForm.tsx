@@ -1,5 +1,6 @@
 import { PropertyIcon } from '../../../components/Icons';
 import { PropertyTypeOption } from '../../types/forms';
+import { Select } from '../ui/Select';
 
 interface PropertyDetailsFormProps {
   formData: {
@@ -50,17 +51,14 @@ export function PropertyDetailsForm({ formData, updateField, propertyTypeOptions
       </div>
       <div>
         <label className="block text-sm font-medium text-neutral-800">Property Type</label>
-        <select
-          className={`${inputClass} mt-2`}
-          value={formData.propertyType}
-          onChange={(event) => updateField("propertyType", event.target.value)}
-        >
-          {propertyTypeOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <div className="mt-2">
+          <Select
+            options={propertyTypeOptions}
+            value={formData.propertyType}
+            placeholder="Select Property Type"
+            onChange={(value) => updateField("propertyType", value)}
+          />
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

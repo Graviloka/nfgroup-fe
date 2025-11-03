@@ -1,5 +1,11 @@
 import { RentIcon } from '../../../components/Icons';
 import { PropertyIntent, SelectOption } from '../../types/forms';
+import { Select } from '../ui/Select';
+import {
+  managedByCompanyOptions,
+  buildingPermitOptions,
+  pricePeriodOptions
+} from '../../constants/forms';
 
 interface RentalDetailsFormProps {
   intent: PropertyIntent;
@@ -40,37 +46,32 @@ export function RentalDetailsForm({
       </div>
       <div>
         <label className="block text-sm font-medium text-neutral-800">{tenureLabel}</label>
-        <select
-          className={`${inputClass} mt-2`}
-          value={intent === "rent" ? formData.rentDuration : formData.tenure}
-          onChange={(event) =>
-            intent === "rent"
-              ? updateField("rentDuration", event.target.value)
-              : updateField("tenure", event.target.value)
-          }
-        >
-          <option value="">{intent === "rent" ? "Select Rental Type" : "Select Tenure"}</option>
-          {tenureOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <div className="mt-2">
+          <Select
+            options={tenureOptions}
+            value={intent === "rent" ? formData.rentDuration : formData.tenure}
+            placeholder={intent === "rent" ? "Select Rental Type" : "Select Tenure"}
+            onChange={(value) =>
+              intent === "rent"
+                ? updateField("rentDuration", value)
+                : updateField("tenure", value)
+            }
+          />
+        </div>
       </div>
        {intent === "rent" && (
          <div>
            <label className="block text-sm font-medium text-neutral-800">
              Managed by a Property Management Company
            </label>
-           <select
-             className={`${inputClass} mt-2`}
-             value={formData.managedByCompany}
-             onChange={(event) => updateField("managedByCompany", event.target.value)}
-           >
-             <option value="">Select option</option>
-             <option value="yes">Yes</option>
-             <option value="no">No</option>
-           </select>
+           <div className="mt-2">
+             <Select
+               options={managedByCompanyOptions}
+               value={formData.managedByCompany}
+               placeholder="Select option"
+               onChange={(value) => updateField("managedByCompany", value)}
+             />
+           </div>
          </div>
        )}
        {intent === "rent" && formData.managedByCompany === "yes" && (
@@ -109,16 +110,14 @@ export function RentalDetailsForm({
           <label className="block text-sm font-medium text-neutral-800">
             Building Permits
           </label>
-          <select
-            className={`${inputClass} mt-2`}
-            value={formData.buildingPermits}
-            onChange={(event) => updateField("buildingPermits", event.target.value)}
-          >
-            <option value="">Select Building Permits</option>
-            <option value="img_pbg">IMG / PBG</option>
-            <option value="slf">SLF</option>
-            <option value="none">None</option>
-          </select>
+          <div className="mt-2">
+            <Select
+              options={buildingPermitOptions}
+              value={formData.buildingPermits}
+              placeholder="Select Building Permits"
+              onChange={(value) => updateField("buildingPermits", value)}
+            />
+          </div>
         </div>
       )}
       {intent === "rent" ? (
@@ -136,14 +135,14 @@ export function RentalDetailsForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-800">Period</label>
-            <select
-              className={`${inputClass} mt-2`}
-              value={formData.pricePeriod}
-              onChange={(event) => updateField("pricePeriod", event.target.value)}
-            >
-              <option value="monthly">Per Month</option>
-              <option value="yearly">Per Year</option>
-            </select>
+            <div className="mt-2">
+              <Select
+                options={pricePeriodOptions}
+                value={formData.pricePeriod}
+                placeholder="Select Period"
+                onChange={(value) => updateField("pricePeriod", value)}
+              />
+            </div>
           </div>
         </div>
       ) : (

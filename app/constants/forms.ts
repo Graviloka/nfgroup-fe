@@ -50,6 +50,16 @@ export const buildingPermitOptions: SelectOption[] = [
   { label: "None", value: "none" },
 ];
 
+export const managedByCompanyOptions: SelectOption[] = [
+  { label: "Yes", value: "yes" },
+  { label: "No", value: "no" },
+];
+
+export const pricePeriodOptions: SelectOption[] = [
+  { label: "Per Month", value: "monthly" },
+  { label: "Per Year", value: "yearly" },
+];
+
 export const requiredFields = [
   "firstName",
   "lastName",
