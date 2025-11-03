@@ -67,7 +67,7 @@ export function MediaUploadForm({
   }, []);
 
   return (
-    <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-6 py-6 shadow-sm relative z-0">
+    <div className="space-y-5 rounded-2xl bg-[#F1F1F1] px-6 py-6 relative z-0">
       <div className="flex items-center gap-3">
         <MediaIcon />
         <h3 className="text-lg font-bold text-neutral-900">Photos and Media</h3>
@@ -77,7 +77,7 @@ export function MediaUploadForm({
       </p>
       <label
         htmlFor="propertyMedia"
-        className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#d7cec6] bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c]"
+        className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c]"
       >
         <input
           id="propertyMedia"

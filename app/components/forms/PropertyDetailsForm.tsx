@@ -18,11 +18,11 @@ interface PropertyDetailsFormProps {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-[#d9d1c8] bg-white px-4 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#7a1c1c] focus:outline-none focus:ring-2 focus:ring-[#7a1c1c]/20";
+  "w-full rounded-lg bg-white px-4 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#7a1c1c] focus:outline-none focus:ring-2 focus:ring-[#7a1c1c]/20";
 
 export function PropertyDetailsForm({ formData, updateField, propertyTypeOptions }: PropertyDetailsFormProps) {
   return (
-    <div className="space-y-5 rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-6 py-6 shadow-sm">
+    <div className="space-y-5 rounded-2xl bg-[#F1F1F1] px-6 py-6">
       <div className="flex items-center gap-3">
         <PropertyIcon />
         <h3 className="text-lg font-semibold text-neutral-900">Property Details</h3>

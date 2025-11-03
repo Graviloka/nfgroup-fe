@@ -63,8 +63,8 @@ function TogglePillGroup({
 
           const activeClasses =
             appearance === "segmented"
-              ? "border-gray-200 bg-white text-neutral-900 shadow-sm"
-              : "border-neutral-900/80 bg-white text-neutral-900 shadow-[0_6px_18px_rgba(15,23,42,0.08)]";
+              ? "border-gray-200 bg-white text-neutral-900"
+              : "border-neutral-900/80 bg-white text-neutral-900";
 
           const inactiveClasses =
             appearance === "segmented"

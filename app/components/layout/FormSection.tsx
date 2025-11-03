@@ -59,7 +59,7 @@ export function FormSection({
             onClick={() => onIntentChange("rent")}
             className={`rounded-lg px-5 py-3 text-sm font-semibold transition ${
               intent === "rent"
-                ? "bg-[#7a1c1c] text-white shadow-lg shadow-[#7a1c1c]/25"
+                ? "bg-[#7a1c1c] text-white"
                 : "bg-[#F1F1F1] text-neutral-700 hover:bg-[#e7dfd7]"
             }`}
           >
@@ -70,7 +70,7 @@ export function FormSection({
             onClick={() => onIntentChange("sale")}
             className={`rounded-lg px-5 py-3 text-sm font-semibold transition ${
               intent === "sale"
-                ? "bg-[#7a1c1c] text-white shadow-lg shadow-[#7a1c1c]/25"
+                ? "bg-[#7a1c1c] text-white"
                 : "bg-[#F1F1F1] text-neutral-700 hover:bg-[#e7dfd7]"
             }`}
           >

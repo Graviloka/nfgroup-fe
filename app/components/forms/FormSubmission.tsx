@@ -17,8 +17,8 @@ export function FormSubmission({
 }: FormSubmissionProps) {
   if (isSubmitted) {
     return (
-      <div className="rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-10 py-16 text-center shadow-lg shadow-[#7a1c1c]/10">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#7a1c1c] text-white shadow-lg shadow-[#7a1c1c]/35">
+      <div className="rounded-2xl bg-[#F1F1F1] px-10 py-16 text-center">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#7a1c1c] text-white">
           <svg aria-hidden="true" className="h-10 w-10" fill="none" viewBox="0 0 24 24">
             <path
               d="M5 12.5 9.5 17 19 7.5"
@@ -38,7 +38,7 @@ export function FormSubmission({
         <button
           type="button"
           onClick={onReset}
-          className="mt-8 inline-flex items-center justify-center rounded-lg border border-[#7a1c1c] bg-[#7a1c1c] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#651515]"
+          className="mt-8 inline-flex items-center justify-center rounded-lg bg-[#74141E] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#511a1c]"
         >
           Back to form
         </button>
@@ -47,9 +47,9 @@ export function FormSubmission({
   }
 
   return (
-    <div className="rounded-2xl border border-[#e3dcd8] bg-[#F1F1F1] px-6 py-6 shadow-sm">
+    <div className="rounded-2xl bg-[#F1F1F1] px-6 py-6">
       {submitError && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
+        <div className="mb-4 rounded-lg bg-red-50 p-4">
           <div className="text-sm text-red-600 whitespace-pre-line">
             {submitError}
           </div>
@@ -62,7 +62,7 @@ export function FormSubmission({
         type="submit"
         disabled={isSubmitDisabled}
         onClick={onSubmit}
-        className="mt-5 w-full rounded-lg bg-[#7a1c1c] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#651515] disabled:bg-[#c7b9b2] disabled:text-white/80"
+        className="mt-5 w-full rounded-lg bg-[#74141E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#511a1c] disabled:bg-[#b1b1b1] disabled:text-white/80"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Application'}
       </button>

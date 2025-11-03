@@ -9,9 +9,9 @@ type SectionCardProps = {
 
 function SectionCard({ icon, title, description, children }: SectionCardProps) {
   return (
-    <section className="rounded-lg border border-[#e2e4ea] bg-white px-5 py-4 shadow-[0_10px_28px_-20px_rgba(15,23,42,0.3)]">
+    <section className="rounded-lg bg-white px-5 py-4">
       <header className="flex items-start gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-neutral-600 shadow-[0_8px_20px_rgba(15,23,42,0.08)]">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-neutral-600">
           {icon}
         </span>
         <div className="space-y-1">
