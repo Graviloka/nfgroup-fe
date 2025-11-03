@@ -24,7 +24,7 @@ export function Footer() {
                 <ul className="space-y-2 text-white/90">
                   {section.items.map((item) => (
                     <li key={typeof item === 'string' ? item : item.label}>
-                      {typeof item === 'string' ? item : <a href={item.href} className="hover:underline">{item.label}</a>}
+                      {typeof item === 'string' ? item : <a href={item.href} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.label}</a>}
                     </li>
                   ))}
                 </ul>
@@ -32,7 +32,7 @@ export function Footer() {
                 <ul className="space-y-2 text-white/90">
                   {section.items.map((item) => (
                     <li key={typeof item === 'string' ? item : item.label}>
-                      {typeof item === 'string' ? <a href="#" className="hover:underline">{item}</a> : <a href={item.href} className="hover:underline">{item.label}</a>}
+                      {typeof item === 'string' ? <a href="#" className="hover:underline">{item}</a> : <a href={item.href} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.label}</a>}
                     </li>
                   ))}
                 </ul>
