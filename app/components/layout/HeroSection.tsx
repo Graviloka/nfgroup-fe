@@ -1,6 +1,6 @@
 export function HeroSection() {
   return (
-    <section id="hero-section" className="relative min-h-[50vh] lg:h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
+    <section id="hero-section" className="relative lg:min-h-[50vh] lg:h-screen w-full overflow-hidden bg-neutral-900 text-white lg:w-[50%]">
       <img
         src="/2253821.png"
         alt="Hero background"
@@ -9,7 +9,7 @@ export function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/20 to-black/70" />
       <div className="relative flex h-full flex-col px-8 py-12 sm:px-12 lg:px-16 lg:py-[96px]">
-        <header className="flex items-center gap-3 lg:mb-10">
+        <header className="flex items-center gap-3 mb-10">
           <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
         </header>
         <div className="max-w-md space-y-2">
