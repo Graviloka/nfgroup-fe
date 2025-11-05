@@ -49,7 +49,7 @@ export function FormSection({
       <div className="mx-auto w-full space-y-6">
         <div className="space-y-2">
           <h2 className="text-2xl text-neutral-900">
-            Submit your property for rent or sale.
+            Submit your property for Rent or Sale.
           </h2>
         </div>
 
