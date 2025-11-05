@@ -48,7 +48,7 @@ export function FormSection({
     <section id="form-section" className="h-full max-h-screen overflow-y-auto bg-white px-6 py-10 sm:px-10 lg:px-16 lg:w-[50%]">
       <div className="mx-auto w-full space-y-6">
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-neutral-900">
+          <h2 className="text-2xl text-neutral-900">
             Submit your property for rent or sale.
           </h2>
         </div>
@@ -57,7 +57,7 @@ export function FormSection({
           <button
             type="button"
             onClick={() => onIntentChange("rent")}
-            className={`rounded-lg px-5 py-3 text-sm font-semibold transition ${
+            className={`rounded-lg px-5 py-3 text-base font-semibold transition ${
               intent === "rent"
                 ? "bg-[#7a1c1c] text-white"
                 : "bg-[#F1F1F1] text-neutral-700 hover:bg-[#e7dfd7]"
@@ -68,7 +68,7 @@ export function FormSection({
           <button
             type="button"
             onClick={() => onIntentChange("sale")}
-            className={`rounded-lg px-5 py-3 text-sm font-semibold transition ${
+            className={`rounded-lg px-5 py-3 text-base font-semibold transition ${
               intent === "sale"
                 ? "bg-[#7a1c1c] text-white"
                 : "bg-[#F1F1F1] text-neutral-700 hover:bg-[#e7dfd7]"

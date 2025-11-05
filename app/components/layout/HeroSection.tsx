@@ -13,11 +13,11 @@ export function HeroSection() {
           <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
         </header>
         <div className="max-w-md space-y-2">
-          <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">List with Us</h1>
-          <p className="text-base text-white/85">
-            Looking to sell or rent out your property?{" "}
-            <span className="font-semibold text-white">List your property with us</span> — we help
-            owners reach verified buyers and reliable renters through our proven marketing and sales
+          <h1 className="lg:text-6xl font-black leading-tight text-5xl">List with Us</h1>
+          <p className="text-xl text-white/85">
+            Looking to <strong className="text-white">sell</strong> or <strong className="text-white">rent</strong> out your property?{" "}
+            <strong className="text-white">List your property with us</strong> — we help
+            owners reach verified <strong className="text-white">buyers</strong> and reliable <strong className="text-white">renters</strong> through our proven marketing and sales
             network.
           </p>
         </div>
