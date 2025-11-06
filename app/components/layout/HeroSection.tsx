@@ -10,7 +10,9 @@ export function HeroSection() {
       <div className="absolute inset-0" />
       <div className="relative flex h-full flex-col px-8 py-12 sm:px-12 lg:px-[7rem] lg:py-[6rem]">
         <header className="flex items-center gap-3 lg:mb-10">
-          <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
+          <a href="https://nfgroup-indonesia.com/" target="_blank" rel="noopener noreferrer">
+            <img src="/nfgroup_logo.svg" alt="NF Group Indonesia" className="h-10 w-auto brightness-0 invert" />
+          </a>
         </header>
         <div className="lg:block hidden lg:space-y-2">
           <h1 className="lg:text-6xl font-black leading-tight text-5xl">List with Us</h1>

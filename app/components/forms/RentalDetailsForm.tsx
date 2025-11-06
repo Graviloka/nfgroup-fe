@@ -121,7 +121,7 @@ export function RentalDetailsForm({
         </div>
       )}
       {intent === "rent" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <div>
             <label className="block text-sm font-medium text-neutral-800">Rental Price (IDR)</label>
             <input
@@ -133,7 +133,7 @@ export function RentalDetailsForm({
               onChange={(event) => updateField("price", event.target.value)}
             />
           </div>
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-neutral-800">Period</label>
             <div className="mt-2">
               <Select
@@ -143,7 +143,7 @@ export function RentalDetailsForm({
                 onChange={(value) => updateField("pricePeriod", value)}
               />
             </div>
-          </div>
+          </div> */}
         </div>
       ) : (
         <div>

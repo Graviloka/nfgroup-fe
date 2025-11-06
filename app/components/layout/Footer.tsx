@@ -1,12 +1,16 @@
 import { footerSections } from '../../constants/footer';
 
 export function Footer() {
+  // Commented out the entire footer
+  /*
   return (
     <footer className="bg-[#7a1c1c] text-white z-10 relative">
       <div className="mx-auto w-full max-w-6xl space-y-10 px-6 py-12 sm:px-10 lg:px-0">
         <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center justify-center">
           <div className="flex items-center gap-3">
-            <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
+            <a href="https://nfgroup-indonesia.com/" target="_blank" rel="noopener noreferrer">
+              <img src="/nfgroup_logo.svg" alt="NF Group Logo" className="h-10 w-auto brightness-0 invert" />
+            </a>
           </div>
         </div>
         <div className="grid gap-8 text-sm sm:grid-cols-2 lg:grid-cols-6">
@@ -47,4 +51,6 @@ export function Footer() {
       </div>
     </footer>
   );
+  */
+  return null;
 }
