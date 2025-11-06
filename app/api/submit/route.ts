@@ -41,7 +41,6 @@ interface RentPayload {
     managed_property: boolean;
     company_name: string | null;
     rental_price: number;
-    rental_period: string;
     villa_photos: number[] | null;
   };
 }
@@ -113,7 +112,6 @@ export async function POST(request: NextRequest) {
           managed_property: formData.managedByCompany === "yes",
           company_name: formData.managedByCompany === "yes" ? formData.companyName : null,
           rental_price: parseInt(formData.price) || 0,
-          rental_period: formData.pricePeriod,
           villa_photos: formData.villaPhotos || null,
         }
       };
