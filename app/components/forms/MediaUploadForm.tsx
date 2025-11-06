@@ -43,32 +43,30 @@ export function MediaUploadForm({
     };
 
     const hideBackdrop = () => {
-      if (backdropTimeout) {
-        clearTimeout(backdropTimeout);
-      }
+      if (backdropTimeout) clearTimeout(backdropTimeout);
       document.body.style.overflow = '';
       const backdrop = document.getElementById('file-upload-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
+      if (backdrop) backdrop.remove();
     };
 
     const handleFocus = () => {
       showBackdrop();
 
-      // Auto-hide backdrop if user cancels (no files selected within 2 seconds)
       backdropTimeout = setTimeout(() => {
         if (!input.files || input.files.length === 0) {
           hideBackdrop();
+          setTimeout(() => {
+            const label = document.querySelector('label[for="propertyMedia"]') as HTMLElement;
+            if (label) label.focus();
+            else document.body.focus();
+          }, 50);
         }
-      }, 500);
+      }, 300);
     };
 
     const handleChange = () => {
-      // Clear timeout if files are selected
-      if (backdropTimeout) {
-        clearTimeout(backdropTimeout);
-      }
+      if (backdropTimeout) clearTimeout(backdropTimeout);
+      hideBackdrop();
     };
 
     if (input) {
@@ -98,6 +96,7 @@ export function MediaUploadForm({
       </p>
       <label
         htmlFor="propertyMedia"
+        tabIndex={0} // penting supaya bisa difokuskan lagi setelah cancel
         className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl bg-white px-10 py-12 text-center transition hover:border-[#7a1c1c]"
       >
         <input
