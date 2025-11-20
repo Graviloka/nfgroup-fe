@@ -48,6 +48,7 @@ export function RentalDetailsForm({
         <label className="block text-sm font-medium text-neutral-800">{tenureLabel}</label>
         <div className="mt-2">
           <Select
+            key={intent}
             options={tenureOptions}
             value={intent === "rent" ? formData.rentDuration : formData.tenure}
             placeholder={intent === "rent" ? "Select Rental Type" : "Select Tenure"}

@@ -13,7 +13,7 @@ export const initialFormState = {
   buildingSize: "",
   landSize: "",
   propertyDescription: "",
-  rentDuration: "monthly",
+  rentDuration: "",
   tenure: "",
   leaseYears: "",
   buildingPermits: "",

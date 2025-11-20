@@ -81,7 +81,7 @@ export function usePropertyForm() {
     setIntent(value);
     setFormData((prev) => ({
       ...prev,
-      rentDuration: value === "rent" ? "monthly" : prev.rentDuration,
+      rentDuration: value === "rent" ? "" : prev.rentDuration,
       tenure: "",
       leaseYears: "",
       buildingPermits: "",
